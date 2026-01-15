@@ -17,3 +17,7 @@ pretty:
 build:
 	@echo "Building..."
 	@bun run --bun build
+
+json-server:
+	@echo "Starting JSON server..."
+	@bun run --bun json-server

@@ -4,6 +4,7 @@
 import { components, hooks, utils } from '@generouted/react-router/client'
 
 export type Path =
+  | `*`
   | `/`
   | `/auth/login`
   | `/auth/register`
@@ -12,7 +13,7 @@ export type Path =
   | `/whitelist`
 
 export type Params = {
-  
+  '/*': { '*': string }
 }
 
 export type ModalPath = never
