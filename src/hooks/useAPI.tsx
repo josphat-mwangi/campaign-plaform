@@ -1,11 +1,11 @@
-import { useQuery, type QueryObserverResult, type RefetchOptions } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import api from "../services/api";
 
 type APIResponse<T> = {
   data: T;
   loading: boolean;
-  error: Error | null;
-  refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<T, Error>>;
+  error: any;
+  refetch: Function;
 };
 
 export default function useAPI<T>(

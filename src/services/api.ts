@@ -10,9 +10,7 @@ export const catchAxiosError = (error: AxiosError<ErrorResponse>) => {
   }
 
   if (error.response) {
-    return new Error(
-      error.response.data?.message || "Something went wrong"
-    );
+    return new Error(error.response.data?.message || "Something went wrong");
   }
 
   if (error.request) {
@@ -22,8 +20,7 @@ export const catchAxiosError = (error: AxiosError<ErrorResponse>) => {
   return error;
 };
 
-export const baseUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+export const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 // create a new axios instance
 const api = Axios.create({
