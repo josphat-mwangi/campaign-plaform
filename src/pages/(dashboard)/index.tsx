@@ -56,7 +56,7 @@ export default function Page() {
   const { user } = {
     user: { first_name: "Admin" },
   };
-  const { data, loading, error } = useAPI<any>("/dashboard/summary", false);
+  const { data, loading, error } = useAPI<any>("/dashboard", false);
 
   const hour = useMemo(() => {
     const date = new Date();
@@ -81,7 +81,7 @@ export default function Page() {
         </Typography>
 
         <Grid container spacing={{ xs: 1, md: 2 }} sx={{ mb: 3 }}>
-          {data?.stats?.map((stat: any, index: number) => (
+          {data?.summary?.stats?.map((stat: any, index: number) => (
             <Grid key={index} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
               <StatCard
                 title={stat.title}
@@ -93,43 +93,13 @@ export default function Page() {
             </Grid>
           ))}
 
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-            <Typography variant="body1" color="GrayText" sx={{ mt: 2, mb: 1 }}>
-              Recent activities
-            </Typography>
-            <Card variant="outlined">
-              <List>
-                {(data?.recent_activities || [])?.map(
-                  (activity: any, index: number) => (
-                    <ListItem key={index}>
-                      <ListItemIcon>
-                        <Icon icon={activity.icon} fontSize={30} />
-                      </ListItemIcon>
-                      <ListItemText>
-                        <Typography variant="caption" color="GrayText">
-                          {moment(activity.time).fromNow()}
-                        </Typography>
-                        <Typography variant="body2">{activity.action}</Typography>
-                        <StyledLink to={activity.link}>
-                          <Typography variant="caption" color="primary">
-                            {activity.campaign}
-                          </Typography>
-                        </StyledLink>
-                      </ListItemText>
-                    </ListItem>
-                  )
-                )}
-              </List>
-            </Card>
-          </Grid>
-
-          <Grid size={{ xs: 12, sm: 6, md: 8, lg: 9 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
             <Typography variant="body1" color="GrayText" sx={{ mt: 2, mb: 1 }}>
               Recent campaigns
             </Typography>
             <Card variant="outlined" sx={{ borderRadius: 2 }}>
               <Table
-                data={data?.recent_campaigns || []}
+                data={data?.summary?.recent_campaigns || []}
                 columns={[
                   {
                     name: "Campaign",

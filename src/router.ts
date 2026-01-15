@@ -7,7 +7,6 @@ export type Path =
   | `*`
   | `/`
   | `/auth/login`
-  | `/auth/register`
   | `/campaign`
   | `/settings`
   | `/whitelist`

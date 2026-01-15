@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { CircularLoader, useModal } from "ochom-react-components";
-import { Outlet } from "react-router-dom";
+import { useModal } from "ochom-react-components";
+import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "src/common/sidenav";
 import { PageBody, PageContent } from "src/common/styled";
 import TopBar from "src/components/topbar";
@@ -33,25 +32,20 @@ const menuItems = [
   },
 ];
 
-export default function Component() {
+export default function RootLayout() {
   const [open, toggleSidebar] = useModal();
+  const location = useLocation();
 
-  const query = useQuery({
-    queryKey: ["auth-layout"],
-    queryFn: async () => {
-      //get token from url params
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-      if (!token) {
-        return { user: null };
-      }
-    },
-  });
+  // Check if current route is an auth route
+  const isAuthRoute = location.pathname.startsWith("/auth");
 
-  if (query.isPending || query.isFetching) return <CircularLoader />;
+  // For auth routes, render without sidebar/topbar
+  if (isAuthRoute) {
+    return <Outlet />;
+  }
 
+  // For all other routes, render with sidebar/topbar
   return (
-    // <AuthGuard>
     <>
       <Sidebar menus={menuItems} open={open} toggleSidebar={toggleSidebar} />
       <PageBody>
@@ -61,7 +55,5 @@ export default function Component() {
         </PageContent>
       </PageBody>
     </>
-
-    // </AuthGuard>
   );
 }
