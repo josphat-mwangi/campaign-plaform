@@ -56,7 +56,7 @@ const StatusChip = ({ status }: { status: string }) => {
 };
 
 export default function SettingsPage() {
-  const { data: admins, loading: adminsLoading, refetch } = useAPI<Admin[]>("/admins");
+  const { data: admins, loading: adminsLoading, refetch } = useAPI<Admin[]>("/v1/api/user");
   const { data: settings, loading: settingsLoading } =
     useAPI<Settings>("/settings", false);
 
@@ -123,7 +123,7 @@ export default function SettingsPage() {
       return;
     }
 
-    post("/user", {
+    post("/v1/api/user", {
       name: addFormData.name,
       email: addFormData.email,
       password: addFormData.password,
@@ -148,7 +148,7 @@ export default function SettingsPage() {
       return;
     }
 
-    put("/user", {
+    put("/v1/api/user", {
       email: passwordFormData.email,
       password: passwordFormData.password,
     })

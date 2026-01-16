@@ -32,7 +32,7 @@ export default function CampaignPage() {
       cancelButtonText: "Cancel",
       confirmButtonColor: "primary",
       onConfirm: async () => {
-        post("/broadcasts", {
+        post("/v1/api/broadcasts", {
           subject: formData.subject,
           message: formData.message,
         })

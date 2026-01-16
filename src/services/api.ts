@@ -20,7 +20,7 @@ export const catchAxiosError = (error: AxiosError<ErrorResponse>) => {
   return error;
 };
 
-export const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+export const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 // create a new axios instance
 const api = Axios.create({

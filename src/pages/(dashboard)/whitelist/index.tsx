@@ -60,7 +60,7 @@ const StatusChip = ({ status }: { status: string }) => {
 
 export default function WhitelistPage() {
   const { data, loading, error, refetch } = useAPI<WhitelistResponse>(
-    "/mail",
+    "/v1/api/mail",
     false
   );
   const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -117,7 +117,7 @@ export default function WhitelistPage() {
       return;
     }
 
-    post("/mail", {
+    post("/v1/api/mail", {
       email: addFormData.email,
       name: addFormData.name,
     })
