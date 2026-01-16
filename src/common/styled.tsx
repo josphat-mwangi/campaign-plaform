@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Box, Fab as Cta } from "@mui/material";
+import { Box, Fab as Cta, type Theme } from "@mui/material";
 
 export const SideNav = styled(Box)`
   position: fixed;
@@ -27,7 +27,7 @@ export const SideNavHeader = styled(Box)`
   font-weight: 600;
   align-items: center;
   padding: 0 30px;
-  color: ${({ theme }) => theme.palette.primary.main};
+  color: ${({ theme }) => (theme as Theme).palette.primary.main};
   border-right: 1px solid #e2e2e2;
   border-bottom: 1px solid #e2e2e2;
   cursor: pointer;
@@ -90,8 +90,8 @@ export const SideNavGroupBody = styled(Box)`
       background-color: #ebebeb;
     }
     &.active {
-      background-color: ${({ theme }) => theme.palette.primary.light};
-      color: ${({ theme }) => theme.palette.primary.contrastText} !important;
+      background-color: ${({ theme }) => (theme as Theme).palette.primary.light};
+      color: ${({ theme }) => (theme as Theme).palette.primary.contrastText} !important;
     }
     svg {
       margin-right: 20px;

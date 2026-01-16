@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Avatar from "boring-avatars";
 import * as XLSX from "xlsx";
 
@@ -26,10 +28,6 @@ export const formatNumber = (count = 0) => {
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
-
-export function getNumericValue(value) {
-  return Number(value.replace(/\,/g, ""));
-}
 
 export const formatCurrency = (amount = 0) => {
   return Number(amount)
@@ -78,14 +76,6 @@ export const toTitleCase = (str) => {
       /\w\S*/g,
       (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     );
-};
-
-export const ArrayOfSize = (size) => {
-  let arr: Array<number> = [];
-  for (let i = 0; i < size; i++) {
-    arr.push(i);
-  }
-  return arr;
 };
 
 export const downloadExcel = (data, filename) => {

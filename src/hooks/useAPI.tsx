@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from "@tanstack/react-query";
 import api from "../services/api";
 
@@ -5,7 +6,7 @@ type APIResponse<T> = {
   data: T;
   loading: boolean;
   error: any;
-  refetch: Function;
+  refetch: () => void;
 };
 
 export default function useAPI<T>(

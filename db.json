@@ -1,4 +1,38 @@
 {
+  "mail": {
+    "content": [
+      {
+        "name": "Miriam Stanley",
+        "email": "miriammtigs@gmail.com",
+        "status": "ACTIVE"
+      }
+    ],
+    "pageable": {
+      "pageNumber": 0,
+      "pageSize": 10,
+      "sort": {
+        "empty": false,
+        "sorted": true,
+        "unsorted": false
+      },
+      "offset": 0,
+      "paged": true,
+      "unpaged": false
+    },
+    "last": true,
+    "totalElements": 1,
+    "totalPages": 1,
+    "first": true,
+    "size": 10,
+    "number": 0,
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "numberOfElements": 1,
+    "empty": false
+  },
   "dashboard": {
     "summary": {
       "stats": [
@@ -130,156 +164,11 @@
       ]
     }
   },
-  "campaigns": [
-    {
-      "id": 1,
-      "name": "Product Launch 2026",
-      "subject": "Introducing Our New Product Line!",
-      "body": "<h1>New Products Are Here!</h1><p>Dear {name},</p><p>We're excited to announce our new product line. Check out our latest offerings!</p>",
-      "status": "active",
-      "recipients": 5000,
-      "sent": 3200,
-      "delivered": 3150,
-      "opened": 1850,
-      "failed": 50,
-      "created_at": "2026-01-05T10:00:00Z",
-      "updated_at": "2026-01-15T08:30:00Z"
-    },
-    {
-      "id": 2,
-      "name": "Flash Sale Promo",
-      "subject": "50% OFF - This Weekend Only!",
-      "body": "<h1>Flash Sale!</h1><p>Hi {name},</p><p>Don't miss out on our biggest sale of the year. 50% off everything this weekend!</p>",
-      "status": "completed",
-      "recipients": 8500,
-      "sent": 8500,
-      "delivered": 8320,
-      "opened": 4200,
-      "failed": 180,
-      "created_at": "2025-12-20T14:00:00Z",
-      "updated_at": "2026-01-08T11:15:00Z"
-    },
-    {
-      "id": 3,
-      "name": "Weekly Newsletter",
-      "subject": "Your Weekly Update",
-      "body": "<h1>Weekly Newsletter</h1><p>Hello {name},</p><p>Here's what's new this week...</p>",
-      "status": "active",
-      "recipients": 12000,
-      "sent": 6800,
-      "delivered": 6650,
-      "opened": 3400,
-      "failed": 150,
-      "created_at": "2026-01-10T09:30:00Z",
-      "updated_at": "2026-01-14T09:30:00Z"
-    },
-    {
-      "id": 4,
-      "name": "Customer Feedback",
-      "subject": "We Value Your Opinion",
-      "body": "<h1>Share Your Feedback</h1><p>Dear {name},</p><p>We'd love to hear from you! Please take a moment to share your thoughts.</p>",
-      "status": "pending",
-      "recipients": 3000,
-      "sent": 0,
-      "delivered": 0,
-      "opened": 0,
-      "failed": 0,
-      "created_at": "2025-10-15T08:00:00Z",
-      "updated_at": "2026-01-02T10:00:00Z"
-    },
-    {
-      "id": 5,
-      "name": "Loyalty Rewards",
-      "subject": "Exclusive Rewards for You!",
-      "body": "<h1>Thank You!</h1><p>Hi {name},</p><p>As a valued customer, enjoy these exclusive rewards...</p>",
-      "status": "active",
-      "recipients": 4500,
-      "sent": 2100,
-      "delivered": 2050,
-      "opened": 980,
-      "failed": 50,
-      "created_at": "2025-12-28T11:00:00Z",
-      "updated_at": "2026-01-15T07:45:00Z"
-    }
-  ],
-  "whitelist": [
-    {
-      "id": 1,
-      "email": "john.kamau@example.com",
-      "name": "John Kamau",
-      "status": "active",
-      "created_at": "2026-01-15T08:00:00Z"
-    },
-    {
-      "id": 2,
-      "email": "mary.wanjiku@example.com",
-      "name": "Mary Wanjiku",
-      "status": "active",
-      "created_at": "2026-01-14T10:30:00Z"
-    },
-    {
-      "id": 3,
-      "email": "peter.ochieng@example.com",
-      "name": "Peter Ochieng",
-      "status": "active",
-      "created_at": "2026-01-13T14:15:00Z"
-    },
-    {
-      "id": 4,
-      "email": "grace.chebet@example.com",
-      "name": "Grace Chebet",
-      "status": "inactive",
-      "created_at": "2026-01-12T09:45:00Z"
-    },
-    {
-      "id": 5,
-      "email": "susan.njeri@example.com",
-      "name": "Susan Njeri",
-      "status": "active",
-      "created_at": "2026-01-11T16:20:00Z"
-    },
-    {
-      "id": 6,
-      "email": "daniel.kiprop@example.com",
-      "name": "Daniel Kiprop",
-      "status": "pending",
-      "created_at": "2026-01-10T11:00:00Z"
-    },
-    {
-      "id": 7,
-      "email": "agnes.muthoni@example.com",
-      "name": "Agnes Muthoni",
-      "status": "active",
-      "created_at": "2026-01-09T09:30:00Z"
-    },
-    {
-      "id": 8,
-      "email": "james.mwangi@example.com",
-      "name": "James Mwangi",
-      "status": "active",
-      "created_at": "2026-01-08T14:00:00Z"
-    },
-    {
-      "id": 9,
-      "email": "faith.wambui@example.com",
-      "name": "Faith Wambui",
-      "status": "active",
-      "created_at": "2026-01-07T09:15:00Z"
-    },
-    {
-      "id": 10,
-      "email": "brian.kibet@example.com",
-      "name": "Brian Kibet",
-      "status": "inactive",
-      "created_at": "2026-01-06T16:30:00Z"
-    }
-  ],
   "admins": [
     {
       "id": 1,
       "name": "Admin User",
       "email": "admin@campaign.com",
-      "password": "$2b$10$hashedpassword",
       "status": "active",
       "created_at": "2025-12-01T10:00:00Z",
       "last_login": "2026-01-15T08:00:00Z"
@@ -288,7 +177,6 @@
       "id": 2,
       "name": "Jane Doe",
       "email": "jane.doe@campaign.com",
-      "password": "$2b$10$hashedpassword",
       "status": "active",
       "created_at": "2025-12-05T14:30:00Z",
       "last_login": "2026-01-14T16:45:00Z"
@@ -302,5 +190,7 @@
     "smtp_host": "smtp.example.com",
     "smtp_port": 587,
     "daily_limit": 10000
-  }
+  },
+  "broadcasts": [],
+  "user": []
 }

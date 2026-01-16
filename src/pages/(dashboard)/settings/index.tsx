@@ -6,20 +6,24 @@ import {
   CardContent,
   Chip,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
+  FormControl,
   Grid,
   IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import moment from "moment";
-import { CircularLoader, Table } from "ochom-react-components";
+import { CircularLoader, Form, Table, useForm } from "ochom-react-components";
 import useAPI from "src/hooks/useAPI";
+import useCURD from "src/hooks/useCURD";
+import toast from "react-hot-toast";
 
 interface Admin {
   id: number;
@@ -52,27 +56,40 @@ const StatusChip = ({ status }: { status: string }) => {
 };
 
 export default function SettingsPage() {
-  const { data: admins, loading: adminsLoading } = useAPI<Admin[]>("/admins");
-  const { data: settings, loading: settingsLoading } = useAPI<Settings>("/settings", false);
+  const { data: admins, loading: adminsLoading, refetch } = useAPI<Admin[]>("/admins");
+  const { data: settings, loading: settingsLoading } =
+    useAPI<Settings>("/settings", false);
 
   const [openAddAdmin, setOpenAddAdmin] = useState(false);
   const [openChangePassword, setOpenChangePassword] = useState(false);
-  const [, setSelectedAdmin] = useState<Admin | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [addAdminForm, setAddAdminForm] = useState({
+  const { post, put, processing } = useCURD();
+
+  const {
+    createField: createAddField,
+    formData: addFormData,
+    setFormData: setAddFormData,
+  } = useForm({
     name: "",
     email: "",
     password: "",
   });
 
-  const [passwordForm, setPasswordForm] = useState({
+  const {
+    createField: createPasswordField,
+    formData: passwordFormData,
+    setFormData: setPasswordFormData,
+  } = useForm({
     email: "",
     password: "",
     confirmPassword: "",
   });
 
   const handleOpenAddAdmin = () => {
-    setAddAdminForm({ name: "", email: "", password: "" });
+    setAddFormData({ name: "", email: "", password: "" });
+    setShowPassword(false);
     setOpenAddAdmin(true);
   };
 
@@ -81,30 +98,65 @@ export default function SettingsPage() {
   };
 
   const handleOpenChangePassword = (admin: Admin) => {
-    setSelectedAdmin(admin);
-    setPasswordForm({ email: admin.email, password: "", confirmPassword: "" });
+    setPasswordFormData({
+      email: admin.email,
+      password: "",
+      confirmPassword: "",
+    });
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     setOpenChangePassword(true);
   };
 
   const handleCloseChangePassword = () => {
     setOpenChangePassword(false);
-    setSelectedAdmin(null);
   };
 
-  const handleAddAdmin = () => {
-    // TODO: Implement API call to add admin
-    console.log("Add admin:", addAdminForm);
-    handleCloseAddAdmin();
-  };
-
-  const handleChangePassword = () => {
-    if (passwordForm.password !== passwordForm.confirmPassword) {
-      alert("Passwords do not match");
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !addFormData.name.trim() ||
+      !addFormData.email.trim() ||
+      !addFormData.password.trim()
+    ) {
+      toast.error("Please fill in all fields");
       return;
     }
-    // TODO: Implement API call to update password
-    console.log("Update password:", { email: passwordForm.email, password: passwordForm.password });
-    handleCloseChangePassword();
+
+    post("/user", {
+      name: addFormData.name,
+      email: addFormData.email,
+      password: addFormData.password,
+    })
+      .then(() => {
+        toast.success("Admin user created successfully!");
+        handleCloseAddAdmin();
+        refetch();
+      })
+      .catch((err) => toast.error(err.message));
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordFormData.password !== passwordFormData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (!passwordFormData.password.trim()) {
+      toast.error("Please enter a password");
+      return;
+    }
+
+    put("/user", {
+      email: passwordFormData.email,
+      password: passwordFormData.password,
+    })
+      .then(() => {
+        toast.success("Password updated successfully!");
+        handleCloseChangePassword();
+      })
+      .catch((err) => toast.error(err.message));
   };
 
   if (adminsLoading || settingsLoading) return <CircularLoader />;
@@ -120,7 +172,10 @@ export default function SettingsPage() {
         <Card variant="outlined" sx={{ borderRadius: 2 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              <Icon icon="mdi:cog" style={{ verticalAlign: "middle", marginRight: 8 }} />
+              <Icon
+                icon="mdi:cog"
+                style={{ verticalAlign: "middle", marginRight: 8 }}
+              />
               Application Settings
             </Typography>
             <Divider sx={{ my: 2 }} />
@@ -141,7 +196,9 @@ export default function SettingsPage() {
                 <Typography variant="caption" color="GrayText">
                   Daily Email Limit
                 </Typography>
-                <Typography variant="body1">{settings?.daily_limit?.toLocaleString()}</Typography>
+                <Typography variant="body1">
+                  {settings?.daily_limit?.toLocaleString()}
+                </Typography>
               </Grid>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Typography variant="caption" color="GrayText">
@@ -159,7 +216,9 @@ export default function SettingsPage() {
                 <Typography variant="caption" color="GrayText">
                   SMTP Host
                 </Typography>
-                <Typography variant="body1">{settings?.smtp_host}:{settings?.smtp_port}</Typography>
+                <Typography variant="body1">
+                  {settings?.smtp_host}:{settings?.smtp_port}
+                </Typography>
               </Grid>
             </Grid>
           </CardContent>
@@ -174,7 +233,10 @@ export default function SettingsPage() {
             sx={{ mb: 2 }}
           >
             <Typography variant="h6">
-              <Icon icon="mdi:account-multiple" style={{ verticalAlign: "middle", marginRight: 8 }} />
+              <Icon
+                icon="mdi:account-multiple"
+                style={{ verticalAlign: "middle", marginRight: 8 }}
+              />
               Admin Users
             </Typography>
             <Button
@@ -233,78 +295,176 @@ export default function SettingsPage() {
         </Box>
 
         {/* Add Admin Dialog */}
-        <Dialog open={openAddAdmin} onClose={handleCloseAddAdmin} maxWidth="sm" fullWidth>
+        <Dialog
+          open={openAddAdmin}
+          onClose={handleCloseAddAdmin}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>Add Admin User</DialogTitle>
           <DialogContent>
-            <Stack spacing={3} sx={{ mt: 1 }}>
-              <TextField
-                label="Name"
-                fullWidth
-                value={addAdminForm.name}
-                onChange={(e) => setAddAdminForm({ ...addAdminForm, name: e.target.value })}
-                placeholder="John Doe"
-              />
-              <TextField
-                label="Email"
-                fullWidth
-                type="email"
-                value={addAdminForm.email}
-                onChange={(e) => setAddAdminForm({ ...addAdminForm, email: e.target.value })}
-                placeholder="admin@example.com"
-              />
-              <TextField
-                label="Password"
-                fullWidth
-                type="password"
-                value={addAdminForm.password}
-                onChange={(e) => setAddAdminForm({ ...addAdminForm, password: e.target.value })}
-                placeholder="Enter password"
-              />
-            </Stack>
+            <Form
+              onSubmit={handleAddAdmin}
+              submitText="Add Admin"
+              submitButtonProps={{ loading: processing }}
+              fields={[
+                createAddField("name", "Name", {
+                  placeholder: "John Doe",
+                }),
+                createAddField("email", "Email", {
+                  type: "email",
+                  placeholder: "admin@example.com",
+                }),
+                createAddField("password", "Password", {
+                  type: "custom",
+                  component: (
+                    <FormControl variant="outlined" fullWidth size="small">
+                      <InputLabel htmlFor="add-admin-password">
+                        Password
+                      </InputLabel>
+                      <OutlinedInput
+                        id="add-admin-password"
+                        size="small"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter password"
+                        endAdornment={
+                          <InputAdornment sx={{ mx: 1 }} position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                              onMouseDown={(e) => e.preventDefault()}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? (
+                                <Icon icon="tabler:eye-off" fontSize={15} />
+                              ) : (
+                                <Icon icon="tabler:eye" fontSize={15} />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Password"
+                        value={addFormData.password}
+                        onChange={(e) =>
+                          setAddFormData({
+                            ...addFormData,
+                            password: e.target.value,
+                          })
+                        }
+                      />
+                    </FormControl>
+                  ),
+                }),
+              ]}
+            />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseAddAdmin}>Cancel</Button>
-            <Button variant="contained" onClick={handleAddAdmin}>
-              Add Admin
-            </Button>
-          </DialogActions>
         </Dialog>
 
         {/* Change Password Dialog */}
-        <Dialog open={openChangePassword} onClose={handleCloseChangePassword} maxWidth="sm" fullWidth>
+        <Dialog
+          open={openChangePassword}
+          onClose={handleCloseChangePassword}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>Change Password</DialogTitle>
           <DialogContent>
-            <Stack spacing={3} sx={{ mt: 1 }}>
-              <TextField
-                label="Email"
-                fullWidth
-                value={passwordForm.email}
-                disabled
-              />
-              <TextField
-                label="New Password"
-                fullWidth
-                type="password"
-                value={passwordForm.password}
-                onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
-                placeholder="Enter new password"
-              />
-              <TextField
-                label="Confirm Password"
-                fullWidth
-                type="password"
-                value={passwordForm.confirmPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                placeholder="Confirm new password"
-              />
-            </Stack>
+            <Form
+              onSubmit={handleChangePassword}
+              submitText="Update Password"
+              submitButtonProps={{ loading: processing }}
+              fields={[
+                createPasswordField("email", "Email", {
+                  disabled: true,
+                }),
+                createPasswordField("password", "New Password", {
+                  type: "custom",
+                  component: (
+                    <FormControl variant="outlined" fullWidth size="small">
+                      <InputLabel htmlFor="new-password">
+                        New Password
+                      </InputLabel>
+                      <OutlinedInput
+                        id="new-password"
+                        size="small"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter new password"
+                        endAdornment={
+                          <InputAdornment sx={{ mx: 1 }} position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                              onMouseDown={(e) => e.preventDefault()}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? (
+                                <Icon icon="tabler:eye-off" fontSize={15} />
+                              ) : (
+                                <Icon icon="tabler:eye" fontSize={15} />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="New Password"
+                        value={passwordFormData.password}
+                        onChange={(e) =>
+                          setPasswordFormData({
+                            ...passwordFormData,
+                            password: e.target.value,
+                          })
+                        }
+                      />
+                    </FormControl>
+                  ),
+                }),
+                createPasswordField("confirmPassword", "Confirm Password", {
+                  type: "custom",
+                  component: (
+                    <FormControl variant="outlined" fullWidth size="small">
+                      <InputLabel htmlFor="confirm-password">
+                        Confirm Password
+                      </InputLabel>
+                      <OutlinedInput
+                        id="confirm-password"
+                        size="small"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm new password"
+                        endAdornment={
+                          <InputAdornment sx={{ mx: 1 }} position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() =>
+                                setShowConfirmPassword((prev) => !prev)
+                              }
+                              onMouseDown={(e) => e.preventDefault()}
+                              edge="end"
+                              size="small"
+                            >
+                              {showConfirmPassword ? (
+                                <Icon icon="tabler:eye-off" fontSize={15} />
+                              ) : (
+                                <Icon icon="tabler:eye" fontSize={15} />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Confirm Password"
+                        value={passwordFormData.confirmPassword}
+                        onChange={(e) =>
+                          setPasswordFormData({
+                            ...passwordFormData,
+                            confirmPassword: e.target.value,
+                          })
+                        }
+                      />
+                    </FormControl>
+                  ),
+                }),
+              ]}
+            />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseChangePassword}>Cancel</Button>
-            <Button variant="contained" onClick={handleChangePassword}>
-              Update Password
-            </Button>
-          </DialogActions>
         </Dialog>
       </Stack>
     </div>

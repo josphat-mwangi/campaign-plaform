@@ -1,60 +1,41 @@
-import { useState } from "react";
 import {
   Box,
-  Button,
   Card,
   CardContent,
+  FormControl,
   IconButton,
   InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
-import api from "src/services/api";
+import useCURD from "src/hooks/useCURD";
+import { Form, useForm } from "ochom-react-components";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+
+  const { createField, formData, setFormData } = useForm({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError("");
-  };
+  const { post, processing } = useCURD();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.email.trim()) {
-      setError("Please enter your email");
-      return;
-    }
-
-    if (!formData.password.trim()) {
-      setError("Please enter your password");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await api.post("/auth/login", formData);
-      const { token } = response.data;
-
-      sessionStorage.setItem("authToken", token);
-      navigate("/");
-    } catch (err: unknown) {
-      const error = err as Error;
-      setError(error.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
+    post("/auth/login", {
+      email: formData.email,
+      password: formData.password,
+    })
+      .then(() => navigate("/"))
+      .catch((err) => toast.error(err.message));
   };
 
   return (
@@ -94,92 +75,55 @@ export default function LoginPage() {
               </Typography>
             </Box>
 
-            {/* Error Message */}
-            {error && (
-              <Box
-                sx={{
-                  p: 1.5,
-                  borderRadius: 1,
-                  backgroundColor: "#ffebee",
-                  border: "1px solid #ffcdd2",
-                }}
-              >
-                <Typography variant="body2" color="error">
-                  {error}
-                </Typography>
-              </Box>
-            )}
-
             {/* Login Form */}
-            <form onSubmit={handleSubmit}>
-              <Stack spacing={2.5}>
-                <TextField
-                  label="Email"
-                  name="email"
-                  type="email"
-                  fullWidth
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="admin@example.com"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Icon icon="mdi:email-outline" width={20} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  label="Password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  fullWidth
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Icon icon="mdi:lock-outline" width={20} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          size="small"
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          <Icon
-                            icon={showPassword ? "mdi:eye-off" : "mdi:eye"}
-                            width={20}
-                          />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  disabled={loading}
-                  sx={{ mt: 1 }}
-                >
-                  {loading ? (
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Icon icon="mdi:loading" className="spin" width={20} />
-                      <span>Signing in...</span>
-                    </Stack>
-                  ) : (
-                    "Sign In"
-                  )}
-                </Button>
-              </Stack>
-            </form>
+            <Form
+              onSubmit={handleSubmit}
+              submitText="Submit"
+              submitButtonProps={{ loading: processing }}
+              fields={[
+                createField("email", "Email", {
+                  type: "email",
+                  placeholder: "admin@example.com",
+                }),
+                createField("password", "Password", {
+                  type: "custom",
+                  component: (
+                    <FormControl variant="outlined" fullWidth size="small">
+                      <InputLabel htmlFor="outlined-adornment-password">
+                        Password
+                      </InputLabel>
+                      <OutlinedInput
+                        id="outlined-adornment-password"
+                        size="small"
+                        type={showPassword ? "text" : "password"}
+                        endAdornment={
+                          <InputAdornment sx={{ mx: 1 }} position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                              onMouseDown={(e) => e.preventDefault()}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? (
+                                <Icon icon="tabler:eye-off" fontSize={15} />
+                              ) : (
+                                <Icon icon="tabler:eye" fontSize={15} />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Password"
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
+                      />
+                    </FormControl>
+                  ),
+                }),
+              ]}
+            />
           </Stack>
         </CardContent>
       </Card>

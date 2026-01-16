@@ -1,5 +1,6 @@
-import React from 'react';
-import axios, { catchAxiosError } from '../utils/api';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from "react";
+import axios, { catchAxiosError } from "../services/api";
 
 type CurdProps = {
   post: (url: string, data?: any) => Promise<any>;
@@ -15,10 +16,10 @@ export default function useCURD(): CurdProps {
     return new Promise((resolve, reject) => {
       axios
         .post(url, data)
-        .then(res => {
+        .then((res) => {
           resolve(res.data);
         })
-        .catch(err => reject(catchAxiosError(err)))
+        .catch((err) => reject(catchAxiosError(err)))
         .finally(() => setProcessing(false));
     });
   };
@@ -28,10 +29,10 @@ export default function useCURD(): CurdProps {
     return new Promise((resolve, reject) => {
       axios
         .put(url, data)
-        .then(res => {
+        .then((res) => {
           resolve(res.data);
         })
-        .catch(err => reject(catchAxiosError(err)))
+        .catch((err) => reject(catchAxiosError(err)))
         .finally(() => setProcessing(false));
     });
   };

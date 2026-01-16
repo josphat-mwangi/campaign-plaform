@@ -4,34 +4,39 @@ import {
   Card,
   Chip,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
-  Stack,
-  TextField,
-  Typography,
+  InputLabel,
   MenuItem,
   Select,
-  FormControl,
-  InputLabel,
+  Stack,
+  Typography,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
-import moment from "moment";
-import { CircularLoader, Table } from "ochom-react-components";
+import { CircularLoader, Form, Table, useForm } from "ochom-react-components";
 import useAPI from "src/hooks/useAPI";
+import useCURD from "src/hooks/useCURD";
+import toast from "react-hot-toast";
 
 interface WhitelistEntry {
-  id: number;
-  email: string;
   name: string;
+  email: string;
   status: string;
-  created_at: string;
+}
+
+interface WhitelistResponse {
+  content: WhitelistEntry[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }
 
 const StatusChip = ({ status }: { status: string }) => {
   const getColor = () => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "active":
         return "success";
       case "inactive":
@@ -54,51 +59,95 @@ const StatusChip = ({ status }: { status: string }) => {
 };
 
 export default function WhitelistPage() {
-  const { data: whitelist, loading, error } = useAPI<WhitelistEntry[]>("/whitelist");
+  const { data, loading, error, refetch } = useAPI<WhitelistResponse>(
+    "/mail",
+    false
+  );
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<WhitelistEntry | null>(null);
-  const [formData, setFormData] = useState({
+
+  const { post, put, processing } = useCURD();
+
+  const {
+    createField: createAddField,
+    formData: addFormData,
+    setFormData: setAddFormData,
+  } = useForm({
+    name: "",
+    email: "",
+  });
+
+  const {
+    createField: createEditField,
+    formData: editFormData,
+    setFormData: setEditFormData,
+  } = useForm({
     email: "",
     name: "",
+    status: "",
   });
-  const [editStatus, setEditStatus] = useState("");
 
   const handleOpenAdd = () => {
-    setFormData({ email: "", name: "" });
+    setAddFormData({ name: "", email: "" });
     setOpenAddDialog(true);
   };
 
   const handleOpenEdit = (entry: WhitelistEntry) => {
-    setSelectedEntry(entry);
-    setEditStatus(entry.status);
+    setEditFormData({
+      email: entry.email,
+      name: entry.name,
+      status: entry.status,
+    });
     setOpenEditDialog(true);
   };
 
   const handleCloseAdd = () => {
     setOpenAddDialog(false);
-    setFormData({ email: "", name: "" });
+    setAddFormData({ name: "", email: "" });
   };
 
   const handleCloseEdit = () => {
     setOpenEditDialog(false);
-    setSelectedEntry(null);
   };
 
-  const handleAddSubmit = () => {
-    // TODO: Implement API call to add whitelisted email
-    console.log("Add whitelist:", formData);
-    handleCloseAdd();
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addFormData.email.trim() || !addFormData.name.trim()) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    post("/mail", {
+      email: addFormData.email,
+      name: addFormData.name,
+    })
+      .then(() => {
+        toast.success("Email added successfully!");
+        handleCloseAdd();
+        refetch();
+      })
+      .catch((err) => toast.error(err.message));
   };
 
-  const handleEditSubmit = () => {
-    // TODO: Implement API call to update status
-    console.log("Update status:", { email: selectedEntry?.email, status: editStatus });
-    handleCloseEdit();
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    put("/mail", {
+      email: editFormData.email,
+      status: editFormData.status,
+    })
+      .then(() => {
+        toast.success("Status updated successfully!");
+        handleCloseEdit();
+        refetch();
+      })
+      .catch((err) => toast.error(err.message));
   };
 
   if (loading) return <CircularLoader />;
   if (error) return <Typography color="error">{error.message}</Typography>;
+
+  const whitelist = data?.content || [];
 
   return (
     <div className="content">
@@ -122,7 +171,7 @@ export default function WhitelistPage() {
 
         <Card variant="outlined" sx={{ borderRadius: 2 }}>
           <Table
-            data={whitelist || []}
+            data={whitelist}
             columns={[
               {
                 name: "Name",
@@ -134,11 +183,9 @@ export default function WhitelistPage() {
               },
               {
                 name: "Status",
-                selector: (row: WhitelistEntry) => <StatusChip status={row.status} />,
-              },
-              {
-                name: "Added",
-                selector: (row: WhitelistEntry) => moment(row.created_at).format("ll"),
+                selector: (row: WhitelistEntry) => (
+                  <StatusChip status={row.status} />
+                ),
               },
               {
                 name: "Actions",
@@ -162,72 +209,75 @@ export default function WhitelistPage() {
         </Card>
 
         {/* Add Email Dialog */}
-        <Dialog open={openAddDialog} onClose={handleCloseAdd} maxWidth="sm" fullWidth>
+        <Dialog
+          open={openAddDialog}
+          onClose={handleCloseAdd}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>Add Whitelisted Email</DialogTitle>
           <DialogContent>
-            <Stack spacing={3} sx={{ mt: 1 }}>
-              <TextField
-                label="Name"
-                fullWidth
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="John Doe"
-              />
-              <TextField
-                label="Email"
-                fullWidth
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="john@example.com"
-              />
-            </Stack>
+            <Form
+              onSubmit={handleAddSubmit}
+              submitText="Add Email"
+              submitButtonProps={{ loading: processing }}
+              fields={[
+                createAddField("name", "Name", {
+                  placeholder: "John Doe",
+                }),
+                createAddField("email", "Email", {
+                  type: "email",
+                  placeholder: "john@example.com",
+                }),
+              ]}
+            />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseAdd}>Cancel</Button>
-            <Button variant="contained" onClick={handleAddSubmit}>
-              Add Email
-            </Button>
-          </DialogActions>
         </Dialog>
 
         {/* Edit Status Dialog */}
-        <Dialog open={openEditDialog} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
+        <Dialog
+          open={openEditDialog}
+          onClose={handleCloseEdit}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>Update Email Status</DialogTitle>
           <DialogContent>
-            <Stack spacing={3} sx={{ mt: 1 }}>
-              <TextField
-                label="Email"
-                fullWidth
-                value={selectedEntry?.email || ""}
-                disabled
-              />
-              <TextField
-                label="Name"
-                fullWidth
-                value={selectedEntry?.name || ""}
-                disabled
-              />
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={editStatus}
-                  label="Status"
-                  onChange={(e) => setEditStatus(e.target.value)}
-                >
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="inactive">Inactive</MenuItem>
-                  <MenuItem value="pending">Pending</MenuItem>
-                </Select>
-              </FormControl>
-            </Stack>
+            <Form
+              onSubmit={handleEditSubmit}
+              submitText="Update Status"
+              submitButtonProps={{ loading: processing }}
+              fields={[
+                createEditField("email", "Email", {
+                  disabled: true,
+                }),
+                createEditField("name", "Name", {
+                  disabled: true,
+                }),
+                createEditField("status", "Status", {
+                  type: "custom",
+                  component: (
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        value={editFormData.status}
+                        label="Status"
+                        onChange={(e) =>
+                          setEditFormData({
+                            ...editFormData,
+                            status: e.target.value,
+                          })
+                        }
+                      >
+                        <MenuItem value="ACTIVE">Active</MenuItem>
+                        <MenuItem value="INACTIVE">Inactive</MenuItem>
+                      </Select>
+                    </FormControl>
+                  ),
+                }),
+              ]}
+            />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseEdit}>Cancel</Button>
-            <Button variant="contained" onClick={handleEditSubmit}>
-              Update Status
-            </Button>
-          </DialogActions>
         </Dialog>
       </Stack>
     </div>
