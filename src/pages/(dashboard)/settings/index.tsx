@@ -4,7 +4,7 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
+  // Chip,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -19,7 +19,6 @@ import {
   Typography,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
-import moment from "moment";
 import { CircularLoader, Form, Table, useForm } from "ochom-react-components";
 import useAPI from "src/hooks/useAPI";
 import useCURD from "src/hooks/useCURD";
@@ -29,9 +28,11 @@ interface Admin {
   id: number;
   name: string;
   email: string;
-  status: string;
-  created_at: string;
-  last_login: string;
+  host: string;
+  protocol: string;
+  // status: string;
+  // created_at: string;
+  // last_login: string;
 }
 
 interface Settings {
@@ -44,21 +45,27 @@ interface Settings {
   daily_limit: number;
 }
 
-const StatusChip = ({ status }: { status: string }) => {
-  return (
-    <Chip
-      label={status}
-      color={status === "active" ? "success" : "error"}
-      size="small"
-      sx={{ textTransform: "capitalize" }}
-    />
-  );
-};
+// const StatusChip = ({ status }: { status: string }) => {
+//   return (
+//     <Chip
+//       label={status}
+//       color={status === "active" ? "success" : "error"}
+//       size="small"
+//       sx={{ textTransform: "capitalize" }}
+//     />
+//   );
+// };
 
 export default function SettingsPage() {
-  const { data: admins, loading: adminsLoading, refetch } = useAPI<Admin[]>("/v1/api/user");
-  const { data: settings, loading: settingsLoading } =
-    useAPI<Settings>("/settings", false);
+  const {
+    data: admins,
+    loading: adminsLoading,
+    refetch,
+  } = useAPI<Admin[]>("/v1/api/user");
+  const { data: settings, loading: settingsLoading } = useAPI<Settings>(
+    "/settings",
+    false,
+  );
 
   const [openAddAdmin, setOpenAddAdmin] = useState(false);
   const [openChangePassword, setOpenChangePassword] = useState(false);
@@ -97,16 +104,16 @@ export default function SettingsPage() {
     setOpenAddAdmin(false);
   };
 
-  const handleOpenChangePassword = (admin: Admin) => {
-    setPasswordFormData({
-      email: admin.email,
-      password: "",
-      confirmPassword: "",
-    });
-    setShowPassword(false);
-    setShowConfirmPassword(false);
-    setOpenChangePassword(true);
-  };
+  // const handleOpenChangePassword = (admin: Admin) => {
+  //   setPasswordFormData({
+  //     email: admin.email,
+  //     password: "",
+  //     confirmPassword: "",
+  //   });
+  //   setShowPassword(false);
+  //   setShowConfirmPassword(false);
+  //   setOpenChangePassword(true);
+  // };
 
   const handleCloseChangePassword = () => {
     setOpenChangePassword(false);
@@ -261,32 +268,40 @@ export default function SettingsPage() {
                   selector: (row: Admin) => row.email,
                 },
                 {
-                  name: "Status",
-                  selector: (row: Admin) => <StatusChip status={row.status} />,
+                  name: "Host",
+                  selector: (row: Admin) => row.host,
                 },
                 {
-                  name: "Created",
-                  selector: (row: Admin) => moment(row.created_at).format("ll"),
+                  name: "Protocol",
+                  selector: (row: Admin) => row.protocol,
                 },
-                {
-                  name: "Last Login",
-                  selector: (row: Admin) => moment(row.last_login).fromNow(),
-                },
-                {
-                  name: "Actions",
-                  selector: (row: Admin) => (
-                    <Stack direction="row" spacing={1}>
-                      <IconButton
-                        size="small"
-                        color="primary"
-                        onClick={() => handleOpenChangePassword(row)}
-                        title="Change Password"
-                      >
-                        <Icon icon="mdi:key" />
-                      </IconButton>
-                    </Stack>
-                  ),
-                },
+                // {
+                //   name: "Status",
+                //   selector: (row: Admin) => <StatusChip status={row.status} />,
+                // },
+                // {
+                //   name: "Created",
+                //   selector: (row: Admin) => moment(row.created_at).format("ll"),
+                // },
+                // {
+                //   name: "Last Login",
+                //   selector: (row: Admin) => moment(row.last_login).fromNow(),
+                // },
+                // {
+                //   name: "Actions",
+                //   selector: (row: Admin) => (
+                //     <Stack direction="row" spacing={1}>
+                //       <IconButton
+                //         size="small"
+                //         color="primary"
+                //         onClick={() => handleOpenChangePassword(row)}
+                //         title="Change Password"
+                //       >
+                //         <Icon icon="mdi:key" />
+                //       </IconButton>
+                //     </Stack>
+                //   ),
+                // },
               ]}
               loading={adminsLoading}
               error={null}
